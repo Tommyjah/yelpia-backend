@@ -1,7 +1,28 @@
-const { Pool } = require('pg'); 
-require('dotenv').config(); 
-const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL, 
-  ssl: { rejectUnauthorized: false } 
-}); 
-module.exports = pool; 
+const { Pool } = require('pg');
+require('dotenv').config();
+
+if (!process.env.DATABASE_URL) {
+  throw new Error('DATABASE_URL environment variable is required');
+}
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { 
+    rejectUnauthorized: false 
+  },
+  max: 10, // Reduced for better performance with Supabase
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 30000 // Increased to 30 seconds for slow connections
+});
+
+// Connect to database on server start
+pool.connect()
+  .then(() => console.log('Connected to Supabase database'))
+  .catch(err => console.error('Database connection error:', err));
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+  process.exit(-1);
+});
+
+module.exports = pool;
