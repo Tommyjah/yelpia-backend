@@ -76,7 +76,6 @@ const login = async (req, res) => {
     );
 
     if (user.rows.length === 0) {
-      console.error('Login Error: User not found with email:', email);
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
@@ -89,7 +88,6 @@ const login = async (req, res) => {
     );
 
     if (!validPassword) {
-      console.error('Login Error: Invalid password for user:', email);
       return res.status(401).json({ 
         success: false, 
         message: 'Invalid credentials' 
@@ -146,7 +144,7 @@ const sendOtp = async (req, res) => {
       [phone_number, otp, expires]
     );
 
-    console.log(`OTP for ${phone_number}: ${otp}`);
+
 
     return res.json({ 
       message: 'OTP sent successfully ✅' 

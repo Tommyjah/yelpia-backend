@@ -17,11 +17,12 @@ const pool = new Pool({
 
 // Connect to database on server start
 pool.connect()
-  .then(() => console.log('Connected to Supabase database'))
-  .catch(err => console.error('Database connection error:', err));
+  .catch(err => {
+    // Silent error handling to avoid sensitive data exposure
+    process.exit(-1);
+  });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
   process.exit(-1);
 });
 

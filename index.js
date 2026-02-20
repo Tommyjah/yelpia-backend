@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
+const morgan = require('morgan');
 const pool = require('./utils/db');
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
@@ -10,8 +12,31 @@ const app = express();
 // ===============================
 // MIDDLEWARE
 // ===============================
+// Security middleware
+app.use(helmet());
+
+// Logging middleware (only in production)
+if (process.env.NODE_ENV === 'production') {
+  app.use(morgan('combined'));
+} else {
+  app.use(morgan('dev'));
+}
+
+// CORS configuration
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://YOUR_VERCEL_APP.vercel.app',
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
 
@@ -34,7 +59,6 @@ app.get('/', async (req, res) => {
       database_time: result.rows[0].now
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: "Database connection failed" });
   }
 });
@@ -43,7 +67,6 @@ app.get('/', async (req, res) => {
 // ERROR HANDLER
 // ===============================
 app.use((err, req, res, next) => {
-  console.error(err.stack);
   res.status(500).json({ error: "Something went wrong!" });
 });
 
