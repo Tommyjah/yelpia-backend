@@ -23,20 +23,9 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 // CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://YOUR_VERCEL_APP.vercel.app',
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
+// CORS configuration - allow all origins for development/testing
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Allow all origins
   credentials: true
 }));
 
